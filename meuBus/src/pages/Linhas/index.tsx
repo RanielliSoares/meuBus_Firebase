@@ -22,13 +22,18 @@ interface Linha {
   tipo_linha: string;
 }
 
+interface Favorito {
+  id: string;
+  nome: string;
+}
+
 type LinhasProps = {
   route: RouteProp<RootStackParamList, 'Linhas'>;
 };
 
 const LinhasScreen: React.FC<LinhasProps> = ({ route }) => {
-  const [linhaFavorita, setLinhaFavorita] = useState<string | null>(null);
   const [linhas, setLinhas] = useState<Linha[]>([]);
+  const [favoritos, setFavoritos] = useState<Favorito[]>([]);
   const [loading, setLoading] = useState(true);
   const { cidadeId } = route.params;
 
@@ -43,13 +48,21 @@ const LinhasScreen: React.FC<LinhasProps> = ({ route }) => {
           const data = doc.data();
           return {
             id: doc.id,
-            nome_linha: data.nome_linha || data.nome || '', 
+            nome_linha: data.nome_linha || data.nome || '',
             numero_linha: data.numero_linha || '',
             tipo_linha: data.tipo_linha || ''
           };
         });
 
-        const ordenadas = linhasExtraidas.sort((a, b) =>
+        const mapaUnico = new Map<string, Linha>();
+        linhasExtraidas.forEach((linha) => {
+          if (!mapaUnico.has(linha.nome_linha)) {
+            mapaUnico.set(linha.nome_linha, linha);
+          }
+        });
+
+        const linhasUnicas = Array.from(mapaUnico.values());
+        const ordenadas = linhasUnicas.sort((a, b) =>
           a.nome_linha.localeCompare(b.nome_linha)
         );
 
@@ -65,17 +78,41 @@ const LinhasScreen: React.FC<LinhasProps> = ({ route }) => {
   }, [cidadeId]);
 
   useEffect(() => {
-    const buscarFavorita = async () => {
+    const buscarFavoritos = async () => {
       try {
-        const favorita = await AsyncStorage.getItem('linhaFavorita');
-        setLinhaFavorita(favorita);
+        const favoritosArmazenados = await AsyncStorage.getItem('linhas_favoritas');
+        if (favoritosArmazenados) {
+          setFavoritos(JSON.parse(favoritosArmazenados));
+        }
       } catch (error) {
-        console.error('❌ Erro ao buscar linha favorita:', error);
+        console.error('❌ Erro ao buscar favoritos:', error);
       }
     };
 
-    buscarFavorita();
+    buscarFavoritos();
   }, []);
+
+  const alternarFavorito = async (linha: Linha) => {
+    try {
+      let novosFavoritos: Favorito[] = [];
+      const jaFavoritado = favoritos.some((fav) => fav.id === linha.id);
+
+      if (jaFavoritado) {
+        novosFavoritos = favoritos.filter((fav) => fav.id !== linha.id);
+      } else {
+        novosFavoritos = [...favoritos, { id: linha.id, nome: linha.nome_linha }];
+      }
+
+      setFavoritos(novosFavoritos);
+      await AsyncStorage.setItem('linhas_favoritas', JSON.stringify(novosFavoritos));
+      console.log('📦 Favoritos atualizados:', novosFavoritos);
+    } catch (error) {
+      console.error('❌ Erro ao alternar favorito:', error);
+    }
+  };
+
+  const isFavorito = (linhaId: string) =>
+    favoritos.some((fav) => fav.id === linhaId);
 
   return (
     <View style={styles.container}>
@@ -89,16 +126,22 @@ const LinhasScreen: React.FC<LinhasProps> = ({ route }) => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.itemContainer}>
-              <TouchableOpacity style={styles.areaBtn}>
+              <TouchableOpacity
+                style={styles.areaBtn}
+                onPress={() => {
+                  // Navegar para detalhes
+                }}
+              >
                 <Text style={styles.nomeLinha}>{item.nome_linha}</Text>
               </TouchableOpacity>
-              <Icon
-                name="star"
-                size={15}
-                color={
-                  item.nome_linha === linhaFavorita ? '#0000ff' : '#ccc'
-                }
-              />
+
+              <TouchableOpacity onPress={() => alternarFavorito(item)}>
+                <Icon
+                  name="star"
+                  size={20}
+                  color={isFavorito(item.id) ? '#409FBD' : '#ccc'}
+                />
+              </TouchableOpacity>
             </View>
           )}
         />
