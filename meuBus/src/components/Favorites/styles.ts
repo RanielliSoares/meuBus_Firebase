@@ -1,8 +1,8 @@
 import {StyleSheet} from 'react-native'
 import colors from '../../colors';
 const styles = StyleSheet.create({
-    container: {
-      height:60,
+    container:{
+      height:70,
       width: '90%',
       justifyContent:'center',
       backgroundColor:colors.background2,
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
       color: colors.blueActive,
     },
     expandedContainer: {
-      height: 430,
+      height: 490,
       
     },
   infoContent: {
@@ -69,8 +69,19 @@ const styles = StyleSheet.create({
     marginLeft:5
   },
   areaTextSemBorda: {
-    borderBottomWidth: 0, // Apenas sobrescreve a borda
-  }
+    borderBottomWidth: 0,
+  },
+  titleWrapper: {
+  flex: 1,
+  marginRight: 8,
+},
+diaSemanaText: {
+  fontSize: 16,
+  marginBottom: 6,
+  marginTop: 2,
+  fontWeight: 'bold',
+},
+
   });
 
   export default styles;

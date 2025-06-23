@@ -44,7 +44,6 @@ const Favorites: React.FC<FavoritesProps> = ({ id, nome }) => {
   const buscarHorarios = async () => {
     try {
       setLoading(true);
-
       const hojeNome = nomeDiaSemana;
       const agora = new Date();
       const nowMinutes = agora.getHours() * 60 + agora.getMinutes();
@@ -77,19 +76,17 @@ const Favorites: React.FC<FavoritesProps> = ({ id, nome }) => {
   return (
     <View style={[styles.container, expanded && styles.expandedContainer]}>
       <TouchableOpacity style={styles.button} onPress={toggleExpand}>
-        <Text style={styles.title}>{nome}</Text>
+        <View style={styles.titleWrapper}>
+          <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+            {nome}
+          </Text>
+        </View>
         <Icon name="star" size={24} color="#409FBD" />
       </TouchableOpacity>
 
       {expanded && (
-        <Text
-          style={{
-            fontSize: 14,
-            color: '#888',
-            marginBottom: 6,
-            marginTop: 2,
-          }}
-        >{nomeDiaSemana.charAt(0).toUpperCase() + nomeDiaSemana.slice(1)}
+        <Text style={styles.diaSemanaText}>
+          {nomeDiaSemana.charAt(0).toUpperCase() + nomeDiaSemana.slice(1)}
         </Text>
       )}
 
@@ -99,7 +96,6 @@ const Favorites: React.FC<FavoritesProps> = ({ id, nome }) => {
             <ActivityIndicator size="small" color="#409FBD" />
           ) : (
             <>
-              {/* Rodoviária */}
               <Text style={styles.origemText}>Rodoviária</Text>
               <Text style={styles.infoText}>Próxima Saída</Text>
               <Text
@@ -118,7 +114,6 @@ const Favorites: React.FC<FavoritesProps> = ({ id, nome }) => {
                 </Text>
               </View>
 
-              {/* Bairro */}
               <Text style={[styles.origemText, styles.origemText2]}>Bairro</Text>
               <Text style={styles.infoText}>Próxima Saída</Text>
               <Text
