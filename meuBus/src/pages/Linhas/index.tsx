@@ -7,7 +7,11 @@ import {
   TouchableOpacity
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RouteProp } from '@react-navigation/native';
+import {
+  RouteProp,
+  useNavigation
+} from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
@@ -31,7 +35,10 @@ type LinhasProps = {
   route: RouteProp<RootStackParamList, 'Linhas'>;
 };
 
+type Navigation = StackNavigationProp<RootStackParamList, 'Linhas'>;
+
 const LinhasScreen: React.FC<LinhasProps> = ({ route }) => {
+  const navigation = useNavigation<Navigation>();
   const [linhas, setLinhas] = useState<Linha[]>([]);
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,9 +135,12 @@ const LinhasScreen: React.FC<LinhasProps> = ({ route }) => {
             <View style={styles.itemContainer}>
               <TouchableOpacity
                 style={styles.areaBtn}
-                onPress={() => {
-                  // Navegar para detalhes
-                }}
+                onPress={() =>
+                  navigation.navigate('LineDetails', {
+                    linhaId: item.id,
+                    nome: item.nome_linha
+                  })
+                }
               >
                 <Text style={styles.nomeLinha}>{item.nome_linha}</Text>
               </TouchableOpacity>

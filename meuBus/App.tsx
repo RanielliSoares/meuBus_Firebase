@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from './src/pages/SplashScreen';
 import HomeScreen from './src/pages/Home';
 import ValidatCidadeScreen from './src/pages/ValidatCidade';
+import LineDetails from './src/pages/lineDetails';
 import LinhasScreen from './src/pages/Linhas';
 import globalStyles from './globalStyles';
 
@@ -14,6 +15,8 @@ type RootStackParamList = {
   Home: { cidade: string }; 
   ValidatCidade: undefined;
   Linhas: { cidadeId: string };
+  LineDetails: { linhaId: string; nome: string };
+
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -42,6 +45,11 @@ const App: React.FC = () => {
             name="Linhas"
             component={LinhasScreen}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+          name="LineDetails" 
+          component={LineDetails} 
+          options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>
