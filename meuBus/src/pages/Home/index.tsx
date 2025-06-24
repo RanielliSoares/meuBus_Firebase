@@ -6,7 +6,9 @@ import {
   Modal,
   TouchableOpacity,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  Image,
+  Linking
 } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -38,6 +40,13 @@ interface Favorito {
   nome: string;
 }
 
+interface Propaganda {
+  imagemUrl: string;
+  ativo: boolean;
+  link?: string;
+  descricao?: string;
+}
+
 const Home: React.FC<HomeProps> = ({ route }) => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
@@ -48,19 +57,15 @@ const Home: React.FC<HomeProps> = ({ route }) => {
   const [noticia, setNoticia] = useState<Noticia | null>(null);
   const [loading, setLoading] = useState(true);
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
+  const [bannerAtual, setBannerAtual] = useState<Propaganda | null>(null);
 
   useEffect(() => {
     const buscarNoticia = async () => {
       try {
         const snapshot = await getDocs(collection(db, 'Cidades', cidade, 'noticias'));
-
         if (!snapshot.empty) {
           const data = snapshot.docs[0].data() as Noticia;
-          if (data.ativo) {
-            setNoticia(data);
-          } else {
-            setNoticia(null);
-          }
+          setNoticia(data.ativo ? data : null);
         } else {
           setNoticia(null);
         }
@@ -91,6 +96,36 @@ const Home: React.FC<HomeProps> = ({ route }) => {
 
     if (isFocused) {
       buscarFavoritos();
+    }
+  }, [isFocused]);
+
+  useEffect(() => {
+    const buscarBannerRotativo = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'Cidades', cidade, 'propagandas_mensal'));
+        const ativos: Propaganda[] = snapshot.docs
+          .map((doc) => doc.data() as Propaganda)
+          .filter((p) => p.ativo === true);
+
+        if (ativos.length === 0) return;
+
+        let index = 0;
+        const salvo = await AsyncStorage.getItem('currentBannerIndex');
+
+        if (salvo) {
+          const posAnterior = parseInt(salvo);
+          index = (posAnterior + 1) % ativos.length;
+        }
+
+        setBannerAtual(ativos[index]);
+        await AsyncStorage.setItem('currentBannerIndex', index.toString());
+      } catch (error) {
+        console.error('❌ Erro ao buscar banners rotativos:', error);
+      }
+    };
+
+    if (isFocused) {
+      buscarBannerRotativo();
     }
   }, [isFocused]);
 
@@ -131,6 +166,26 @@ const Home: React.FC<HomeProps> = ({ route }) => {
             >
               <Text style={styles.txtBtn}>Horários de Ônibus</Text>
             </TouchableOpacity>
+
+            {bannerAtual && (
+              <View style={{ width: '100%', paddingVertical: 16 }}>
+                <TouchableOpacity
+                  onPress={() => bannerAtual.link && Linking.openURL(bannerAtual.link)}
+                  activeOpacity={0.9}
+                  style={{ alignItems: 'center' }}
+                >
+                  <Image
+                    source={{ uri: bannerAtual.imagemUrl }}
+                    style={{
+                      width: '90%',
+                      aspectRatio: 16 / 9,
+                      borderRadius: 10,
+                    }}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
 
           <Modal
