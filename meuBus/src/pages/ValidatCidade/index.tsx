@@ -39,7 +39,7 @@ const ValidatCidade: React.FC = () => {
         const snapshot = await getDocs(collection(db, 'Cidades'));
 
         const listaCidades = snapshot.docs
-          .filter((doc) => doc.data().ativo === true) // Filtra apenas cidades ativas
+          .filter((doc) => doc.data().ativo === true) 
           .map((doc) => ({
             id: doc.id,
             name: doc.data().nome
