@@ -38,10 +38,12 @@ const ValidatCidade: React.FC = () => {
       try {
         const snapshot = await getDocs(collection(db, 'Cidades'));
 
-        const listaCidades = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().nome
-        }));
+        const listaCidades = snapshot.docs
+          .filter((doc) => doc.data().ativo === true) 
+          .map((doc) => ({
+            id: doc.id,
+            name: doc.data().nome
+          }));
 
         setCidades(listaCidades);
       } catch (error) {
@@ -88,7 +90,7 @@ const ValidatCidade: React.FC = () => {
                       onValueChange={(itemValue) => setSelectedCityId(itemValue)}
                       style={styles.picker}
                     >
-                      <Picker.Item label="Escolha uma cidade" value={null} />
+                      <Picker.Item label="Escolha sua cidade" value={null} />
                       {cidades.map((cidade) => (
                         <Picker.Item
                           key={cidade.id}

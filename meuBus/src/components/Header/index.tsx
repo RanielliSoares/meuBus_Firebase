@@ -12,15 +12,18 @@ const Header: React.FC = () => {
     <View style={styles.header}>
 
       <View style={styles.titulo}>
-        <TouchableOpacity style={styles.iconMenu}>
-          <Icon name="menu" size={30} color={'#000'} />
-        </TouchableOpacity>
+        {/*  COMENTADO ICONE MENU PARA FUTURAS IMPLEMENTAÇÕES
+  <TouchableOpacity style={styles.iconMenu}>
+    <Icon name="menu" size={30} color={'#000'} />
+  </TouchableOpacity>
+  */}
+
 
 
         <Image source={require('../../../src/assets/meuBus_Ico.png')} style={styles.logo} />
         <Text style={styles.title}>Meu Bus</Text>
       </View>
-      
+
     </View>
   );
 };
